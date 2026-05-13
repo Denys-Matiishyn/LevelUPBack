@@ -1,0 +1,3 @@
+# Add these to your existing requirements.txt if not already present
+groq
+python-dotenv
