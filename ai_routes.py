@@ -1,20 +1,22 @@
-# Register in app.py: from ai_routes import assistant_bp, then app.register_blueprint(assistant_bp, url_prefix='/api/v1')
-
 import os
 import json
 from flask import Blueprint, request, jsonify
 from groq import Groq
-from dotenv import load_dotenv
-
-load_dotenv()
+from flask_cors import CORS  # ДОДАНО: захист від блокування запитів фронтенду
 
 assistant_bp = Blueprint('assistant', __name__)
+CORS(assistant_bp)  # Дозволяємо фронтенду робити запити на цей маршрут
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-context_path = os.path.join(os.path.dirname(__file__), 'ai_context.txt')
-with open(context_path, "r", encoding="utf-8") as f:
-    SITE_KNOWLEDGE = f.read()
+# ЗАМІСТЬ ЗЧИТУВАННЯ ФАЙЛУ: Прописуємо знання сайту в код або беремо з великої змінної
+# Можеш просто скопіювати сюди текст зі свого ai_context.txt
+SITE_KNOWLEDGE = """
+Тут твій текст про компанію LevelUP.
+Наприклад: Наша компанія надає послуги...
+Контакти: ...
+Ціни: ...
+"""
 
 SYSTEM_PROMPT = f"""Ти — AI-помічник сайту LevelUP. Відповідай виключно на основі контенту сайту.
 
@@ -33,12 +35,19 @@ SYSTEM_PROMPT = f"""Ти — AI-помічник сайту LevelUP. Відпо�
 {{"reply": "...", "suggested_questions": ["...", "..."]}}
 Якщо suggested_questions недоречні — повертай []."""
 
-@assistant_bp.route("/assistant", methods=["POST"])
+@assistant_bp.route("/assistant", methods=["POST", "OPTIONS"])  # ДОДАНО: OPTIONS для CORS
 def assistant():
+    # Обробка попереднього запиту від браузера (CORS preflight)
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"}), 200
+
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
         message = data.get("message", "")
         history = data.get("history", [])
+
+        if not message:
+            return jsonify({"reply": "Привіт! Напиши щось, щоб я міг допомогти.", "suggested_questions": []})
 
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
