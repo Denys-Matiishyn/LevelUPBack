@@ -19,7 +19,7 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     FRONTEND = os.getenv('FRONTEND_URL')
-    CORS(app, resources={r"/api/*": {"origins": FRONTEND}})
+    CORS(app, resources={r"/api/*": {"origins": FRONTEND}}, supports_credentials=True)
     app.config.from_object(Config)
 
     db.init_app(app)

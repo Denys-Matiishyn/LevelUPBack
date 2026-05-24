@@ -10,5 +10,5 @@ class Reviews(db.Model):
     service_id = db.Column(db.Integer, db.ForeignKey('services.id'))
     rating = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text, nullable=False)
-    is_published = db.Column(db.Boolean, default=False)
+    is_published = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
