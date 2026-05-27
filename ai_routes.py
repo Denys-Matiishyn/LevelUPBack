@@ -9,14 +9,9 @@ CORS(assistant_bp)  # Дозволяємо фронтенду робити за�
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# ЗАМІСТЬ ЗЧИТУВАННЯ ФАЙЛУ: Прописуємо знання сайту в код або беремо з великої змінної
-# Можеш просто скопіювати сюди текст зі свого ai_context.txt
-SITE_KNOWLEDGE = """
-Тут твій текст про компанію LevelUP.
-Наприклад: Наша компанія надає послуги...
-Контакти: ...
-Ціни: ...
-"""
+context_path = os.path.join(os.path.dirname(__file__), 'ai_context.txt')
+with open(context_path, "r", encoding="utf-8") as f:
+    SITE_KNOWLEDGE = f.read()
 
 SYSTEM_PROMPT = f"""Ти — AI-помічник сайту LevelUP. Відповідай виключно на основі контенту сайту.
 
